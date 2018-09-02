@@ -6,15 +6,25 @@ import java.util.Random;
 public class GeneratorUtils {
 
     private ArrayList<String> total_fields;
-    private String[] races = {"Dragonborn","Dwarf","Eladrin","Elf","Gnome","Half-elf","Half-Orc","Halfling","Human","Tiefling"};
+    private ArrayList<String> answers;
+    String[] races = {"Dragonborn","Dwarf","Eladrin","Elf","Gnome","Half-elf","Half-Orc","Halfling","Human","Tiefling"};
+    String[] classes = {"Wizard", "Rogue", "Cleric", "Fighter", "Barbarian"};
+
+    private String[] questions = {
+            "What is your name?",
+            "What is your character's name?",
+            "What is your character's class? '$classes' to see a list.",
+    };
+
+    ColorUtils c = new ColorUtils();
 
     public GeneratorUtils() {
         total_fields = new ArrayList<String>()  {{
             add("PlayerName");
+            add("CharacterName");
             add("ClassLevel");
             add("Background");
-            add("CharacterName");
-            add("Race"); // Not Working?
+            //add("Race"); // Not Working?
             add("Alignment");
             add("XP");
             add("AC"); //Armor Class
@@ -28,13 +38,24 @@ public class GeneratorUtils {
             add("STR"); // Strength
             add("STRmod"); //Strength Modification
         }};
+
+        answers = new ArrayList<String>();
     }
 
     public ArrayList<String> getTotal_fields() {
         return total_fields;
     }
 
-    public String RGENraces() {
-        return races[new Random().nextInt(races.length)];
+    public String[] getQuestions() {
+        return questions;
+    }
+
+    public String RGENsection(String[] array) {
+        return array[new Random().nextInt(array.length)];
+    }
+
+    public void AddAnswer(String stri) {
+        answers.add(stri);
+        c.linePrint("Answer Saved. (" + stri + ")", c.ANSI_GREEN);
     }
 }
