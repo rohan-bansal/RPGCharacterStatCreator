@@ -14,8 +14,7 @@ class FileUtils {
     private PDAcroForm acroForm;
 
     FileUtils(String fileName)  throws java.lang.Exception {
-        ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(classLoader.getResource(fileName).getFile());
+        File file = new File(fileName);
         System.out.println("\nStatus: I/O directory = " + file.getAbsolutePath());
         Main.pdfDoc = PDDocument.load(file);
         docCatalog = Main.pdfDoc.getDocumentCatalog();
