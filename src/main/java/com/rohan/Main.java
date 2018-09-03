@@ -11,7 +11,7 @@ public class Main {
 
         System.setProperty("sun.java2d.cmm", "sun.java2d.cmm.kcms.KcmsServiceProvider");
 
-        FileUtils obj = new FileUtils("Files/CharacterSheet.pdf");
+        FileUtils obj = new FileUtils("CharacterSheet.pdf");
         GeneratorUtils obj2 = new GeneratorUtils();
         ColorUtils c = new ColorUtils();
         Scanner input = new Scanner(System.in);
@@ -20,17 +20,19 @@ public class Main {
         obj.statusCheck();
 
         c.linePrint("-=-=-=-=-RPG Character Stat Generator-=-=-=-=-=-", c.ANSI_BLUE);
-        c.linePrint("\n\t[s] Start Generator\n\t[i] Info\n", c.ANSI_WHITE);
+        c.linePrint("\n\t[s] Start Generator\n\t[i] Info\n\t[q] Quit", c.ANSI_WHITE);
 
         while(true) {
             c.RSlinePrint("\n>> ", c.ANSI_GREEN);
             ph = input.nextLine();
-            if(ph.toLowerCase().equals("s")) {
+            if (ph.toLowerCase().equals("s")) {
                 break;
-            } else if(ph.toLowerCase().equals("i")) {
-                c.linePrint("Coded by Rohan Bansal\n\nType '$r' to auto-generate\nType '$b' to move back a question\nMore optional commands appear during generation.\nMay take 5-10 seconds" +
-                        " to load the form after finishing.\nDownload the form from the target/classes/Files/ path in file explorer.", c.ANSI_BLUE);
-            } else {
+            } else if (ph.toLowerCase().equals("i")) {
+                c.linePrint("Coded by Rohan Bansal\n\nType '$r' to auto-generate\nType '$b' to move back a question\nType '$q' to quit\nMore optional commands appear during " +
+                        "generation.\nMay take 5-10 seconds to load the form after finishing.\nDownload the form from the target/classes/Files/ path in file explorer.", c.ANSI_BLUE);
+            } else if(ph.toLowerCase().equals("q")) {
+                System.exit(0);
+            }else {
                 c.linePrint("Command not recognized.", c.ANSI_RED);
             }
         }
@@ -65,6 +67,8 @@ public class Main {
                             cannotBeGen(c);
                             break;
                     }
+                } else if(ph.toLowerCase().equals("$q")) {
+                    System.exit(0);
                 }
             } else {
                 obj2.AddAnswer(ph);
