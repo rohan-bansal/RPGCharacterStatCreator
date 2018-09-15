@@ -6,16 +6,17 @@ import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
 import org.apache.pdfbox.pdmodel.interactive.form.PDField;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
 
 class FileUtils {
 
-    private PDDocumentCatalog docCatalog;
     private PDAcroForm acroForm;
 
     FileUtils(String fileName)  throws java.lang.Exception {
+        PDDocumentCatalog docCatalog;
         File file = new File(fileName);
-        System.out.println("\nStatus: I/O directory = " + file.getAbsolutePath());
+        System.out.println("\nI/O directory = " + file.getAbsolutePath());
         Main.pdfDoc = PDDocument.load(file);
         docCatalog = Main.pdfDoc.getDocumentCatalog();
         acroForm = docCatalog.getAcroForm();
@@ -23,15 +24,19 @@ class FileUtils {
 
     void statusCheck() {
         List fields = acroForm.getFields();
-        System.out.println("Status: " + Integer.toString(fields.size()) + " top-level fields found");
-        System.out.println("Status: " + System.getProperty("user.dir"));
+        System.out.println(Integer.toString(fields.size()) + " top-level fields found");
+        System.out.println("Working Directory = " + System.getProperty("user.dir"));
     }
 
-    void setFields(String fieldCallSign, String value) throws java.lang.Exception {
+    void setAllFields(HashMap<String, String> total_fields) throws java.io.IOException {
+        for(String key : total_fields.keySet()) {
+            setField(key, total_fields.get(key));
+        }
+        Main.pdfDoc.save(new File(System.getProperty("user.dir") +  "/CharacterSheet.pdf"));
+    }
+
+    void setField(String fieldCallSign, String value) throws java.io.IOException {
         PDField field = acroForm.getField(fieldCallSign);
         field.setValue(value);
-
-        Main.pdfDoc.save(new File("/home/rbansal/dev/IDEA-JavaProjects/RpgStatGenerator/target/classes/Files/CharacterSheet.pdf"));
-
     }
 }
