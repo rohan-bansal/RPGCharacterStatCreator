@@ -6,6 +6,8 @@ import java.util.Scanner;
 public class Main {
 
     static PDDocument pdfDoc;
+    private static boolean checkUnfillable;
+
 
     public static void main(String[] args) throws java.lang.Exception {
 
@@ -28,54 +30,83 @@ public class Main {
             if (ph.toLowerCase().equals("s")) {
                 break;
             } else if (ph.toLowerCase().equals("i")) {
-                c.linePrint("Coded by Rohan Bansal\n\nType '$r' to auto-generate\nType '$b' to move back a question\nType '$q' to quit\nMore optional commands appear during " +
-                        "generation.\nMay take 5-10 seconds to load the form after finishing.\nDownload the form from the target/classes/Files/ path in file explorer.", c.ANSI_BLUE);
+                c.linePrint("Coded by Rohan Bansal\n\nType '$r' to auto-generate\nType '$q' to quit\nMore optional commands appear during " +
+                        "generation.\nMay take 5-10 seconds to load the form after finishing.\nDownload the form from the jar directory in file explorer.", c.ANSI_BLUE);
             } else if(ph.toLowerCase().equals("q")) {
                 System.exit(0);
             }else {
                 c.linePrint("Command not recognized.", c.ANSI_RED);
             }
         }
-        start(obj2, obj, c, input, ph);
+        start(obj2, obj, c, input);
 
     }
 
-    static void cannotBeGen(ColorUtils c) {
-        c.linePrint("This field cannot be randomly generated.", c.ANSI_RED);
+    static void CanGen(ColorUtils c, boolean works) {
+        if(works) {
+            c.linePrint("Generation Successful.", c.ANSI_GREEN);
+        } else {
+            c.linePrint("This field cannot be randomly generated.", c.ANSI_RED);
+        }
     }
 
-    static void start(GeneratorUtils obj2, FileUtils obj, ColorUtils c, Scanner input, String ph) {
-        int currentIndex = 0;
+    static void start(GeneratorUtils obj2, FileUtils obj, ColorUtils c, Scanner input) throws  java.io.IOException { //TODO user may edit answers in the end
+        String ph;
 
-        while(true) {
-            c.linePrint(obj2.getQuestions()[currentIndex], c.ANSI_YELLOW);
-            c.RSlinePrint("\n>> ", c.ANSI_GREEN);
-            ph = input.nextLine();
+        for(String keypart : obj2.getFieldList()) {
 
-            if(ph.charAt(0) == '$') {
-                if(ph.toLowerCase().equals("$classes") && currentIndex == 2) { // Lists Classes
-                    for (String item : obj2.classes) {
-                        c.linePrint(item, c.ANSI_BLUE);
-                    }
-                } else if(ph.toLowerCase().equals("$r")) { // Random Generation
-                    switch (currentIndex) {
-                        case 2: //Class
-                            c.linePrint("Generation Successful.", c.ANSI_GREEN);
-                            obj2.AddAnswer(obj2.RGENsection(obj2.classes));
-                            currentIndex++;
-                        default:
-                            cannotBeGen(c);
-                            break;
-                    }
-                } else if(ph.toLowerCase().equals("$q")) {
-                    System.exit(0);
+            for(String check : obj2.unfillables) {
+
+                if(keypart.equals(check)) {
+                    checkUnfillable = true;
+                    break;
+                } else {
+                    checkUnfillable = false;
                 }
+            }
+
+            if(checkUnfillable) {
+                obj2.AddAnswer(keypart, "0", true);
             } else {
-                obj2.AddAnswer(ph);
-                currentIndex++;
+                c.linePrint(obj2.getQuestions().get(keypart), c.ANSI_YELLOW);
+                while(true) {
+                    c.RSlinePrint("\n>> ", c.ANSI_GREEN);
+                    ph = input.nextLine();
+                    if(ph.charAt(0) == '$') {
+                        if(ph.toLowerCase().equals("$classes") && keypart.equals("ClassLevel")) { // Lists Classes
+                            for (String item : obj2.classes) {
+                                c.linePrint(item, c.ANSI_BLUE);
+                            }
+                        } else if (ph.toLowerCase().equals("$alignments") && keypart.equals("Alignment")) {
+                            for (String element : obj2.alignments) {
+                                c.linePrint(element, c.ANSI_BLUE);
+                            }
+                        } else if(ph.toLowerCase().equals("$r")) { // Random Generation
+                            switch (keypart) {
+                                case "ClassLevel": //Class
+                                    CanGen(c, true);
+                                    obj2.AddAnswer(keypart, obj2.RGENsection(obj2.classes));
+                                    break;
+                                case "Alignment": // Alignments
+                                    CanGen(c, true);
+                                    obj2.AddAnswer(keypart, obj2.RGENsection(obj2.alignments));
+                                    break;
+                                default:
+                                    CanGen(c, false);
+                                    break;
+                            }
+                            break;
+                        } else if(ph.toLowerCase().equals("$q")) {
+                            System.exit(0);
+                        }
+                    } else {
+                        obj2.AddAnswer(keypart, ph);
+                        break;
+                    }
+                }
             }
         }
+        obj.setAllFields(obj2.getTotal_fields());
     }
 }
 
-//TODO integrate PDFToolkit
