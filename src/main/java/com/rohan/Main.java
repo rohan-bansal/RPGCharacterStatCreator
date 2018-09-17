@@ -42,9 +42,10 @@ public class Main {
 
     }
 
-    static void CanGen(ColorUtils c, boolean works) {
+    static void CanGen(ColorUtils c, GeneratorUtils obj2, boolean works, String... fields) {
         if(works) {
             c.linePrint("Generation Successful.", c.ANSI_GREEN);
+            obj2.AddAnswer(fields[0], fields[1]);
         } else {
             c.linePrint("This field cannot be randomly generated.", c.ANSI_RED);
         }
@@ -66,12 +67,22 @@ public class Main {
             }
 
             if(checkUnfillable) {
-                obj2.AddAnswer(keypart, "0", true);
+                switch(keypart) {
+                    case "Inspiration": //ProfBonus - Switched?
+                        obj2.AddAnswer(keypart, "+2", true);
+                        break;
+                    case "Speed":
+                        obj2.AddAnswer(keypart, obj2.calculateSpeed(), true);
+                        break;
+                    default:
+                        obj2.AddAnswer(keypart, "0", true);
+                }
             } else {
                 c.linePrint(obj2.getQuestions().get(keypart), c.ANSI_YELLOW);
                 while(true) {
                     c.RSlinePrint("\n>> ", c.ANSI_GREEN);
                     ph = input.nextLine();
+                    boolean default_ = false;
                     if(ph.charAt(0) == '$') {
                         if(ph.toLowerCase().equals("$classes") && keypart.equals("ClassLevel")) { // Lists Classes
                             for (String item : obj2.classes) {
@@ -81,26 +92,42 @@ public class Main {
                             for (String element : obj2.alignments) {
                                 c.linePrint(element, c.ANSI_BLUE);
                             }
+                        } else if (ph.toLowerCase().equals("$races") && keypart.equals("Race")) {
+                            for (String element : obj2.races) {
+                                c.linePrint(element, c.ANSI_BLUE);
+                            }
                         } else if(ph.toLowerCase().equals("$r")) { // Random Generation
                             switch (keypart) {
                                 case "ClassLevel": //Class
-                                    CanGen(c, true);
-                                    obj2.AddAnswer(keypart, obj2.RGENsection(obj2.classes));
+                                    CanGen(c, obj2, true, keypart, obj2.RGENsection(obj2.classes) + "  lvl.1");
                                     break;
                                 case "Alignment": // Alignments
-                                    CanGen(c, true);
-                                    obj2.AddAnswer(keypart, obj2.RGENsection(obj2.alignments));
+                                    CanGen(c, obj2, true, keypart, obj2.RGENsection(obj2.alignments));
+                                    break;
+                                case "Background": //Background
+                                    CanGen(c, obj2, true, keypart, obj2.RGENsection(obj2.backgrounds));
                                     break;
                                 default:
-                                    CanGen(c, false);
+                                    CanGen(c, obj2, false);
+                                    default_ = true;
                                     break;
                             }
-                            break;
+                            if(!default_) {
+                                break;
+                            } else {
+
+                            }
                         } else if(ph.toLowerCase().equals("$q")) {
                             System.exit(0);
                         }
                     } else {
-                        obj2.AddAnswer(keypart, ph);
+                        if(keypart.equals("ClassLevel")) {
+                            obj2.AddAnswer(keypart, ph + " lvl.1");
+                        } else if(keypart.equals("Race")) {
+                            obj2.AddAnswer("ClassLevel", ph + " " + obj2.getTotal_fields().get("ClassLevel"));
+                        } else {
+                            obj2.AddAnswer(keypart, ph);
+                        }
                         break;
                     }
                 }
