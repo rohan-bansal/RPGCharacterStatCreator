@@ -11,33 +11,36 @@ public class GeneratorUtils {
     String[] races = {"Dragonborn","Dwarf","Eladrin","Elf","Gnome","Half-elf","Half-Orc","Halfling","Human","Tiefling"};
     String[] classes = {"Wizard", "Rogue", "Cleric", "Fighter", "Barbarian"};
     String[] alignments = {"Lawful Good", "Neutral Good", "Chaotic Good", "Lawful Neutral", "Neutral"};
-    String[] unfillables = {"XP", "ProfBonus", "Inspiration"};
+    String[] backgrounds = {"Noble", "Cook", "Thief", "Adventurer", "Blacksmith", "Armorsmith", "Acolyte", "Archeologist", "Entertainer", "Soldier", "Outlander"};
+
+    String[] unfillables = {"XP", "ProfBonus", "Inspiration", "Speed"};
 
     private ColorUtils c = new ColorUtils();
 
     public GeneratorUtils() {
 
-        fieldList = new String[] {"PlayerName", "CharacterName", "ClassLevel", "Alignment", "XP", "ProfBonus", "Inspiration"};
+        fieldList = new String[] {"PlayerName", "CharacterName", "ClassLevel", "Alignment", "Background", "Race", "XP", "ProfBonus", "Inspiration", "Speed"};
 
          questions = new HashMap<String, String>() {{
                 put("PlayerName", "What is your name?");
                 put("CharacterName", "What is your character's name?");
                 put("ClassLevel", "What is your character's class? '$classes' to see a list.");
                 put("Alignment", "What side is your character aligned to? '$alignments' to see a list.");
-                //TODO add Background/Race once it works
+                put("Background", "What is your character's history (background)? (e.g. noble, adventurer, cook, thief, blacksmith)");
+                put("Race", "What is your character's fictional race? '$races' to see a list.");
 
          }};
 
         total_fields = new HashMap<>();
         for(String item : fieldList) {
-            total_fields.put(item, "");
+            if(item.equals("Race")) {
+
+            } else {
+                total_fields.put(item, "");
+            }
         }
 
-//            add("Background");
-//            add("Race"); // Not Working?
-//            add("XP");
 //            add("AC"); //Armor Class
-//            add("ProfBonus"); //Proficiency Bonus
 //            add("Initiative");
 //            add("Speed");
 //            add("PersonalityTraits");
@@ -73,7 +76,12 @@ public class GeneratorUtils {
         }
     }
 
-    public boolean checkForUnFillable() {
-        return false;
+    public String calculateSpeed() {
+        String currentClass = total_fields.get("ClassLevel").split(" ")[0];
+        if(currentClass.equals("Dwarf") || currentClass.equals("Gnome") || currentClass.equals("Halfling") || currentClass.equals("Tiefling")) {
+             return "20";
+        } else {
+            return "30";
+        }
     }
 }
