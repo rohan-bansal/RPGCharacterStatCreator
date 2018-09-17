@@ -32,6 +32,7 @@ class FileUtils {
         for(String key : total_fields.keySet()) {
             setField(key, total_fields.get(key));
         }
+
         Main.pdfDoc.save(new File(System.getProperty("user.dir") +  "/CharacterSheet.pdf"));
     }
 
