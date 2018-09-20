@@ -19,6 +19,7 @@ public class Main {
         Scanner input = new Scanner(System.in);
         String ph;
 
+
         obj.statusCheck();
 
         c.linePrint("-=-=-=-=-RPG Character Stat Generator-=-=-=-=-=-", c.ANSI_BLUE);
@@ -38,7 +39,7 @@ public class Main {
                 c.linePrint("Command not recognized.", c.ANSI_RED);
             }
         }
-        start(obj2, obj, c, input);
+        gameloop(obj2, obj, c, input);
 
     }
 
@@ -51,8 +52,9 @@ public class Main {
         }
     }
 
-    static void start(GeneratorUtils obj2, FileUtils obj, ColorUtils c, Scanner input) throws  java.io.IOException { //TODO user may edit answers in the end
+    static void gameloop(GeneratorUtils obj2, FileUtils obj, ColorUtils c, Scanner input) throws  java.io.IOException { //TODO user may edit answers in the end
         String ph;
+        obj2.calculateAbilityScores(obj);
 
         for(String keypart : obj2.getFieldList()) {
 
@@ -68,11 +70,39 @@ public class Main {
 
             if(checkUnfillable) {
                 switch(keypart) {
-                    case "Inspiration": //ProfBonus - Switched?
+                    case "ProBonus": //ProfBonus - Switched?
                         obj2.AddAnswer(keypart, "+2", true);
                         break;
                     case "Speed":
                         obj2.AddAnswer(keypart, obj2.calculateSpeed(), true);
+                        break;
+                    case "XP":
+                        obj2.AddAnswer(keypart, "lvl 1 - 0 exp", true);
+                        break;
+                    case "Passive":
+                        obj2.AddAnswer(keypart, Integer.toString(10 + Integer.parseInt(obj2.getTotal_fields().get("WIS"))), true);
+                        break;
+                    case "AC":
+                        obj2.AddAnswer(keypart, Integer.toString(10 + Integer.parseInt(obj2.getTotal_fields().get("DEX"))), true);
+                        break;
+                    case "HD":
+                        String tempClass = obj2.getTotal_fields().get("ClassLevel").split(" ")[1];
+                        if(tempClass.equals("Wizard")) {
+                            obj2.AddAnswer(keypart, "d8", true);
+                            obj2.AddAnswer("HPMax", "8", true);
+                        } else if(tempClass.equals("Barbarian")) {
+                            obj2.AddAnswer(keypart, "d12", true);
+                            obj2.AddAnswer("HPMax", "12", true);
+                        } else if(tempClass.equals("Rogue")) {
+                            obj2.AddAnswer(keypart, "d10", true);
+                            obj2.AddAnswer("HPMax", "10", true);
+                        } else if(tempClass.equals("Cleric")) {
+                            obj2.AddAnswer(keypart, "d8", true);
+                            obj2.AddAnswer("HPMax", "8", true);
+                        } else if(tempClass.equals("Fighter")) {
+                            obj2.AddAnswer(keypart, "d12", true);
+                            obj2.AddAnswer("HPMax", "12", true);
+                        }
                         break;
                     default:
                         obj2.AddAnswer(keypart, "0", true);
@@ -122,7 +152,7 @@ public class Main {
                         }
                     } else {
                         if(keypart.equals("ClassLevel")) {
-                            obj2.AddAnswer(keypart, ph + " lvl.1");
+                            obj2.AddAnswer(keypart, ph);
                         } else if(keypart.equals("Race")) {
                             obj2.AddAnswer("ClassLevel", ph + " " + obj2.getTotal_fields().get("ClassLevel"));
                         } else {
@@ -134,6 +164,22 @@ public class Main {
             }
         }
         obj.setAllFields(obj2.getTotal_fields());
+        c.linePrint("Character Successfully Generated.\nYou may now open the file.", c.ANSI_GREEN);
+
+        while(true) {
+            c.RSlinePrint("Do you want to randomly generate again with the options specified before? [y/n]: ", c.ANSI_YELLOW);
+            ph = input.nextLine();
+            if(ph.toLowerCase().equals("y")) {
+                obj2.calculateAbilityScores(obj);
+                obj2.AddAnswer("Passive", Integer.toString(10 + Integer.parseInt(obj2.getTotal_fields().get("WIS"))), true);
+                obj2.AddAnswer("AC", Integer.toString(10 + Integer.parseInt(obj2.getTotal_fields().get("DEX"))), true);
+                obj.setAllFields(obj2.getTotal_fields());
+                c.linePrint("Character Successfully Generated.\nYou may now open the file.", c.ANSI_GREEN);
+            } else {
+                c.linePrint("Closing pdfbox system...", c.ANSI_RED);
+                System.exit(0);
+            }
+        }
     }
 }
 
