@@ -2,31 +2,37 @@ package com.rohan;
 
 import java.util.HashMap;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class GeneratorUtils {
 
     private HashMap<String, String> total_fields;
     private HashMap<String, String> questions;
     private String[] fieldList;
-    String[] races = {"Dragonborn","Dwarf","Eladrin","Elf","Gnome","Half-elf","Half-Orc","Halfling","Human","Tiefling"};
-    String[] classes = {"Wizard", "Rogue", "Cleric", "Fighter", "Barbarian"};
-    String[] alignments = {"Lawful Good", "Neutral Good", "Chaotic Good", "Lawful Neutral", "Neutral"};
-    String[] backgrounds = {"Noble", "Cook", "Thief", "Adventurer", "Blacksmith", "Armorsmith", "Acolyte", "Archeologist", "Entertainer", "Soldier", "Outlander"};
-
-    String[] unfillables = {"XP", "ProfBonus", "Inspiration", "Speed"};
+    String[] unfillables;
+    String[] races;
+    String[] classes;
+    String[] alignments;
+    String[] backgrounds;
 
     private ColorUtils c = new ColorUtils();
 
     public GeneratorUtils() {
 
-        fieldList = new String[] {"PlayerName", "CharacterName", "ClassLevel", "Alignment", "Background", "Race", "XP", "ProfBonus", "Inspiration", "Speed"};
+        races = new String[] {"Dragonborn","Dwarf","Eladrin","Elf","Gnome","Half-elf","Half-Orc","Halfling","Human","Tiefling"};
+        classes = new String[] {"Wizard", "Rogue", "Cleric", "Fighter", "Barbarian"};
+        alignments = new String[] {"Lawful Good", "Neutral Good", "Chaotic Good", "Lawful Neutral", "Neutral"};
+        backgrounds = new String[] {"Noble", "Cook", "Thief", "Adventurer", "Blacksmith", "Armorsmith", "Acolyte", "Archeologist", "Entertainer", "Soldier", "Outlander"};
+
+        unfillables = new String[] {"XP", "ProBonus", "Speed", "Passive", "AC", "HD"};
+        fieldList = new String[] {"PlayerName", "CharacterName", "ClassLevel", "Alignment", "Background", "Race", "XP", "ProBonus", "Speed", "Passive", "AC", "HD"};
 
          questions = new HashMap<String, String>() {{
                 put("PlayerName", "What is your name?");
                 put("CharacterName", "What is your character's name?");
                 put("ClassLevel", "What is your character's class? '$classes' to see a list.");
                 put("Alignment", "What side is your character aligned to? '$alignments' to see a list.");
-                put("Background", "What is your character's history (background)? (e.g. noble, adventurer, cook, thief, blacksmith)");
+                put("Background", "What is your character's history (background)? (for example, but not limited to, noble, adventurer, cook, thief, blacksmith)");
                 put("Race", "What is your character's fictional race? '$races' to see a list.");
 
          }};
@@ -40,14 +46,9 @@ public class GeneratorUtils {
             }
         }
 
-//            add("AC"); //Armor Class
-//            add("Initiative");
-//            add("Speed");
 //            add("PersonalityTraits");
 //            add("HPMax");
 //            add("HPCurrent");
-//            add("STR"); // Strength
-//            add("STRmod"); //Strength Modification
 
     }
 
@@ -67,6 +68,10 @@ public class GeneratorUtils {
         return array[new Random().nextInt(array.length)];
     }
 
+    public Integer RGENAbilityScore() {
+        return ThreadLocalRandom.current().nextInt(8, 18 + 1);
+    }
+
     public void AddAnswer(String field, String stri, boolean... dontPrint) {
         total_fields.put(field, stri);
         if(dontPrint.length > 0) {
@@ -77,11 +82,30 @@ public class GeneratorUtils {
     }
 
     public String calculateSpeed() {
-        String currentClass = total_fields.get("ClassLevel").split(" ")[0];
-        if(currentClass.equals("Dwarf") || currentClass.equals("Gnome") || currentClass.equals("Halfling") || currentClass.equals("Tiefling")) {
+        String currentRace = total_fields.get("ClassLevel").split(" ")[0];
+        if(currentRace.equals("Dwarf") || currentRace.equals("Gnome") || currentRace.equals("Halfling") || currentRace.equals("Tiefling")) {
              return "20";
         } else {
             return "30";
         }
+    }
+
+    public void calculateAbilityScores(FileUtils f) throws java.io.IOException {
+        String[] ASfields = {"STR", "DEX", "CON", "INT", "WIS", "CHA"};
+        HashMap<String, Integer> scores = new HashMap<>();
+
+        for(String item : ASfields) {
+            scores.put(item, RGENAbilityScore());
+        }
+
+        for(String element : scores.keySet()) {
+            total_fields.put(element + "mod", Integer.toString(scores.get(element)));
+            f.setField(element + "mod", Integer.toString(scores.get(element)));
+
+            total_fields.put(element, Integer.toString((int) (Math.floor( (double) ((scores.get(element) - 10) / 2)))));
+            f.setField(element, Integer.toString((int) (Math.floor( (double) ((scores.get(element) - 10) / 2)))));
+        }
+
+
     }
 }
