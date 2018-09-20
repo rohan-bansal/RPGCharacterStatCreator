@@ -1,7 +1,7 @@
 # RPGCharacterStatCreator
 A java program to generate a D&amp;D character and return a filled out pdf form.
 
-_40% complete_
+_50% complete_
 
 ## Features
 
@@ -13,3 +13,4 @@ _40% complete_
 
 - Download the jar file, place the character sheet in the same directory
 - Run the jar file via terminal
+- Remember to ONLY use the character sheet form provided. If not, there is a 50% chance of program error.
