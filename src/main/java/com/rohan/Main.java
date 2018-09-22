@@ -58,9 +58,9 @@ public class Main {
 
         for(String keypart : obj2.getFieldList()) {
 
-            for(String check : obj2.unfillables) {
+            for (String check : obj2.unfillables) {
 
-                if(keypart.equals(check)) {
+                if (keypart.equals(check)) {
                     checkUnfillable = true;
                     break;
                 } else {
@@ -68,38 +68,38 @@ public class Main {
                 }
             }
 
-            if(checkUnfillable) {
-                switch(keypart) {
+            if (checkUnfillable) {
+                switch (keypart) {
                     case "ProBonus": //ProfBonus - Switched?
                         obj2.AddAnswer(keypart, "+2", true);
                         break;
                     case "Speed":
                         obj2.AddAnswer(keypart, obj2.calculateSpeed(), true);
                         break;
-                    case "XP":
-                        obj2.AddAnswer(keypart, "lvl 1 - 0 exp", true);
-                        break;
                     case "Passive":
-                        obj2.AddAnswer(keypart, Integer.toString(10 + Integer.parseInt(obj2.getTotal_fields().get("WIS"))), true);
+                        obj2.AddAnswer(keypart, Integer.toString(10 + Integer.parseInt(obj2.getTotal_fields().get("WISmod"))), true);
                         break;
                     case "AC":
-                        obj2.AddAnswer(keypart, Integer.toString(10 + Integer.parseInt(obj2.getTotal_fields().get("DEX"))), true);
+                        obj2.AddAnswer(keypart, Integer.toString(10 + Integer.parseInt(obj2.getTotal_fields().get("DEXmod"))), true);
+                        break;
+                    case "Initiative":
+                        obj2.AddAnswer(keypart, obj2.getTotal_fields().get("DEXmod"), true);
                         break;
                     case "HD":
                         String tempClass = obj2.getTotal_fields().get("ClassLevel").split(" ")[1];
-                        if(tempClass.equals("Wizard")) {
+                        if (tempClass.equals("Wizard")) {
                             obj2.AddAnswer(keypart, "d8", true);
                             obj2.AddAnswer("HPMax", "8", true);
-                        } else if(tempClass.equals("Barbarian")) {
+                        } else if (tempClass.equals("Barbarian")) {
                             obj2.AddAnswer(keypart, "d12", true);
                             obj2.AddAnswer("HPMax", "12", true);
-                        } else if(tempClass.equals("Rogue")) {
+                        } else if (tempClass.equals("Rogue")) {
                             obj2.AddAnswer(keypart, "d10", true);
                             obj2.AddAnswer("HPMax", "10", true);
-                        } else if(tempClass.equals("Cleric")) {
+                        } else if (tempClass.equals("Cleric")) {
                             obj2.AddAnswer(keypart, "d8", true);
                             obj2.AddAnswer("HPMax", "8", true);
-                        } else if(tempClass.equals("Fighter")) {
+                        } else if (tempClass.equals("Fighter")) {
                             obj2.AddAnswer(keypart, "d12", true);
                             obj2.AddAnswer("HPMax", "12", true);
                         }
@@ -109,12 +109,12 @@ public class Main {
                 }
             } else {
                 c.linePrint(obj2.getQuestions().get(keypart), c.ANSI_YELLOW);
-                while(true) {
+                while (true) {
                     c.RSlinePrint("\n>> ", c.ANSI_GREEN);
                     ph = input.nextLine();
                     boolean default_ = false;
-                    if(ph.charAt(0) == '$') {
-                        if(ph.toLowerCase().equals("$classes") && keypart.equals("ClassLevel")) { // Lists Classes
+                    if (ph.charAt(0) == '$') {
+                        if (ph.toLowerCase().equals("$classes") && keypart.equals("ClassLevel")) { // Lists Classes
                             for (String item : obj2.classes) {
                                 c.linePrint(item, c.ANSI_BLUE);
                             }
@@ -126,10 +126,10 @@ public class Main {
                             for (String element : obj2.races) {
                                 c.linePrint(element, c.ANSI_BLUE);
                             }
-                        } else if(ph.toLowerCase().equals("$r")) { // Random Generation
+                        } else if (ph.toLowerCase().equals("$r")) { // Random Generation
                             switch (keypart) {
                                 case "ClassLevel": //Class
-                                    CanGen(c, obj2, true, keypart, obj2.RGENsection(obj2.classes) + "  lvl.1");
+                                    CanGen(c, obj2, true, keypart, obj2.RGENsection(obj2.classes));
                                     break;
                                 case "Alignment": // Alignments
                                     CanGen(c, obj2, true, keypart, obj2.RGENsection(obj2.alignments));
@@ -142,18 +142,18 @@ public class Main {
                                     default_ = true;
                                     break;
                             }
-                            if(!default_) {
+                            if (!default_) {
                                 break;
                             } else {
 
                             }
-                        } else if(ph.toLowerCase().equals("$q")) {
+                        } else if (ph.toLowerCase().equals("$q")) {
                             System.exit(0);
                         }
                     } else {
-                        if(keypart.equals("ClassLevel")) {
+                        if (keypart.equals("ClassLevel")) {
                             obj2.AddAnswer(keypart, ph);
-                        } else if(keypart.equals("Race")) {
+                        } else if (keypart.equals("Race")) {
                             obj2.AddAnswer("ClassLevel", ph + " " + obj2.getTotal_fields().get("ClassLevel"));
                         } else {
                             obj2.AddAnswer(keypart, ph);
@@ -163,6 +163,9 @@ public class Main {
                 }
             }
         }
+
+        extraQuestions(input, c, obj2);
+
         obj.setAllFields(obj2.getTotal_fields());
         c.linePrint("Character Successfully Generated.\nYou may now open the file.", c.ANSI_GREEN);
 
@@ -180,6 +183,31 @@ public class Main {
                 System.exit(0);
             }
         }
+    }
+
+    static void extraQuestions(Scanner input, ColorUtils c, GeneratorUtils obj2) {
+        String ph;
+        int index = 0;
+
+        while(true) {
+            c.linePrint("[" + (index + 1) + "/2] What ability would you like your character to be proficient in? '$profs' to see a list.", c.ANSI_YELLOW);
+            c.RSlinePrint("\n>> ", c.ANSI_GREEN);
+            ph = input.nextLine();
+            switch (ph) {
+                case "$profs":
+                    for (String element : obj2.profs) {
+                        c.linePrint(element, c.ANSI_BLUE);
+                    }
+                    break;
+                default:
+                    obj2.currentProfs[index] = ph;
+                    index += 1;
+            }
+            if (index == 2) {
+                break;
+            }
+        }
+        obj2.setAllSkills();
     }
 }
 
