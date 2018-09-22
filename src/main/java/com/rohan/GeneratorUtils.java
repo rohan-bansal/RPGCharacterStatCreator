@@ -1,5 +1,6 @@
 package com.rohan;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -14,6 +15,8 @@ public class GeneratorUtils {
     String[] classes;
     String[] alignments;
     String[] backgrounds;
+    String[] profs;
+    String[] currentProfs;
 
     private ColorUtils c = new ColorUtils();
 
@@ -23,9 +26,11 @@ public class GeneratorUtils {
         classes = new String[] {"Wizard", "Rogue", "Cleric", "Fighter", "Barbarian"};
         alignments = new String[] {"Lawful Good", "Neutral Good", "Chaotic Good", "Lawful Neutral", "Neutral"};
         backgrounds = new String[] {"Noble", "Cook", "Thief", "Adventurer", "Blacksmith", "Armorsmith", "Acolyte", "Archeologist", "Entertainer", "Soldier", "Outlander"};
+        profs = new String[] {"STR", "DEX", "CON", "INT", "WIS", "CHA"};
+        currentProfs = new String[2];
 
-        unfillables = new String[] {"XP", "ProBonus", "Speed", "Passive", "AC", "HD"};
-        fieldList = new String[] {"PlayerName", "CharacterName", "ClassLevel", "Alignment", "Background", "Race", "XP", "ProBonus", "Speed", "Passive", "AC", "HD"};
+        unfillables = new String[] {"ProBonus", "Speed", "Passive", "AC", "HD", "Initiative"};
+        fieldList = new String[] {"PlayerName", "CharacterName", "ClassLevel", "Alignment", "Background", "Race", "ProBonus", "Initiative", "Speed", "Passive", "AC", "HD"};
 
          questions = new HashMap<String, String>() {{
                 put("PlayerName", "What is your name?");
@@ -90,8 +95,9 @@ public class GeneratorUtils {
         }
     }
 
-    public void calculateAbilityScores(FileUtils f) throws java.io.IOException {
+    public void calculateAbilityScores(FileUtils f) {
         String[] ASfields = {"STR", "DEX", "CON", "INT", "WIS", "CHA"};
+
         HashMap<String, Integer> scores = new HashMap<>();
 
         for(String item : ASfields) {
@@ -99,13 +105,54 @@ public class GeneratorUtils {
         }
 
         for(String element : scores.keySet()) {
-            total_fields.put(element + "mod", Integer.toString(scores.get(element)));
-            f.setField(element + "mod", Integer.toString(scores.get(element)));
 
-            total_fields.put(element, Integer.toString((int) (Math.floor( (double) ((scores.get(element) - 10) / 2)))));
-            f.setField(element, Integer.toString((int) (Math.floor( (double) ((scores.get(element) - 10) / 2)))));
+            String plusMinus = ((Math.floor( (double) ((scores.get(element) - 10) / 2))) < 0) ? "" : "+";
+
+            AddAnswer(element, Integer.toString(scores.get(element)), false); //score
+
+            AddAnswer(element + "mod", plusMinus + Integer.toString((int) (Math.floor( (double) ((scores.get(element) - 10) / 2)))), false); //modifier
+
         }
-
-
     }
+
+    public void setAllSkills() {
+
+        HashMap<String, String[]> skills = new HashMap<>();
+        String[] STR = {"SavingThrows", "Athletics"};
+        String[] DEX = {"SavingThrows2", "Acrobatics", "SleightofHand", "Stealth"};
+        String[] CON = {"SavingThrows3"};
+        String[] INT = {"SavingThrows4", "Arcana", "History", "Investigation", "Nature", "Religion"};
+        String[] WIS = {"SavingThrows5", "Animal Handling", "Insight", "Medicine", "Perception", "Survival"};
+        String[] CHA = {"SavingThrows6", "Deception", "Intimidation", "Performance", "Persuasion"};
+
+        skills.put("STR", STR);
+        skills.put("DEX", DEX);
+        skills.put("CON", CON);
+        skills.put("INT", INT);
+        skills.put("WIS", WIS);
+        skills.put("CHA", CHA);
+
+        for(String element : profs) {
+            for (String item : skills.get(element)) {
+                if(Arrays.asList(currentProfs).contains(element)) {
+                    AddAnswer(item, "+" + Integer.toString(Integer.parseInt(total_fields.get(element + "mod")) + Integer.parseInt(total_fields.get("ProBonus"))), true);
+                } else {
+                    AddAnswer(item, total_fields.get(element + "mod"), true);
+                }
+            }
+        }
+    }
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
