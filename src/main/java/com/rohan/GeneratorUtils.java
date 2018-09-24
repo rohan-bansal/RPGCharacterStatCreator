@@ -14,9 +14,9 @@ public class GeneratorUtils {
     String[] races;
     String[] classes;
     String[] alignments;
-    String[] backgrounds;
-    String[] profs;
-    String[] currentProfs;
+    HashMap<String, String[]> backgrounds;
+    private String[] profs;
+    private String[] currentProfs;
 
     private ColorUtils c = new ColorUtils();
 
@@ -25,7 +25,18 @@ public class GeneratorUtils {
         races = new String[] {"Dragonborn","Dwarf","Eladrin","Elf","Gnome","Half-elf","Half-Orc","Halfling","Human","Tiefling"};
         classes = new String[] {"Wizard", "Rogue", "Cleric", "Fighter", "Barbarian"};
         alignments = new String[] {"Lawful Good", "Neutral Good", "Chaotic Good", "Lawful Neutral", "Neutral"};
-        backgrounds = new String[] {"Noble", "Cook", "Thief", "Adventurer", "Blacksmith", "Armorsmith", "Acolyte", "Archeologist", "Entertainer", "Soldier", "Outlander"};
+        backgrounds = new HashMap<String, String[]>() {{
+            put("Acolyte", new String[] {"Insight", "Religion"});
+            put("Charlatan", new String[] {"Deception", "SleightofHand"});
+            put("Criminal", new String[] {"Deception", "Stealth"});
+            put("Guild Artisan", new String[] {"Insight", "Persuasion"});
+            put("Hermit", new String[] {"Medicine", "Religion"});
+            put("Noble", new String[] {"History", "Persuasion"});
+            put("Outlander", new String[] {"Athletics", "Survival"});
+            put("Entertainer", new String[] {"Acrobatics", "Performance"});
+            put("Soldier", new String[] {"Athletics", "Intimidation"});
+            put("Sailor", new String[] {"Athletics", "Perception"});
+        }};
         profs = new String[] {"STR", "DEX", "CON", "INT", "WIS", "CHA"};
         currentProfs = new String[2];
 
@@ -37,7 +48,7 @@ public class GeneratorUtils {
                 put("CharacterName", "What is your character's name?");
                 put("ClassLevel", "What is your character's class? '$classes' to see a list.");
                 put("Alignment", "What side is your character aligned to? '$alignments' to see a list.");
-                put("Background", "What is your character's history (background)? (for example, but not limited to, noble, adventurer, cook, thief, blacksmith)");
+                put("Background", "What is your character's history (background)? '$backgrounds' to see a list.");
                 put("Race", "What is your character's fictional race? '$races' to see a list.");
 
          }};
@@ -95,12 +106,10 @@ public class GeneratorUtils {
         }
     }
 
-    public void calculateAbilityScores(FileUtils f) {
-        String[] ASfields = {"STR", "DEX", "CON", "INT", "WIS", "CHA"};
-
+    public void calculateAbilityScores() {
         HashMap<String, Integer> scores = new HashMap<>();
 
-        for(String item : ASfields) {
+        for(String item : profs) {
             scores.put(item, RGENAbilityScore());
         }
 
@@ -117,25 +126,24 @@ public class GeneratorUtils {
 
     public void setAllSkills() {
 
-        HashMap<String, String[]> skills = new HashMap<>();
-        String[] STR = {"SavingThrows", "Athletics"};
-        String[] DEX = {"SavingThrows2", "Acrobatics", "SleightofHand", "Stealth"};
-        String[] CON = {"SavingThrows3"};
-        String[] INT = {"SavingThrows4", "Arcana", "History", "Investigation", "Nature", "Religion"};
-        String[] WIS = {"SavingThrows5", "Animal Handling", "Insight", "Medicine", "Perception", "Survival"};
-        String[] CHA = {"SavingThrows6", "Deception", "Intimidation", "Performance", "Persuasion"};
+        HashMap<String, String[]> skills = new HashMap<String, String[]>() {{
+            put("STR", new String[] {"SavingThrows", "Athletics"});
+            put("DEX", new String[] {"SavingThrows2", "Acrobatics", "SleightofHand", "Stealth"});
+            put("CON", new String[] {"SavingThrows3"});
+            put("INT", new String[] {"SavingThrows4", "Arcana", "History", "Investigation", "Nature", "Religion"});
+            put("WIS", new String[] {"SavingThrows5", "Animal Handling", "Insight", "Medicine", "Perception", "Survival"});
+            put("CHA", new String[] {"SavingThrows6", "Deception", "Intimidation", "Performance", "Persuasion"});
+        }};
 
-        skills.put("STR", STR);
-        skills.put("DEX", DEX);
-        skills.put("CON", CON);
-        skills.put("INT", INT);
-        skills.put("WIS", WIS);
-        skills.put("CHA", CHA);
+        String currentBackground = total_fields.get("Background");
+        currentProfs[0] = backgrounds.get(currentBackground)[0];
+        currentProfs[1] = backgrounds.get(currentBackground)[1];
 
         for(String element : profs) {
             for (String item : skills.get(element)) {
-                if(Arrays.asList(currentProfs).contains(element)) {
-                    AddAnswer(item, "+" + Integer.toString(Integer.parseInt(total_fields.get(element + "mod")) + Integer.parseInt(total_fields.get("ProBonus"))), true);
+                if(Arrays.asList(currentProfs).contains(item)) {
+                    AddAnswer(item, "+" + Integer.toString(Integer.parseInt(total_fields.get(element + "mod")) + 2), true);
+                    AddAnswer("ChBx " + item, "Yes");
                 } else {
                     AddAnswer(item, total_fields.get(element + "mod"), true);
                 }
