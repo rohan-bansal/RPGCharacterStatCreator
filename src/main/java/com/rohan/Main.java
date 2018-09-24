@@ -46,6 +46,7 @@ public class Main {
     static void CanGen(ColorUtils c, GeneratorUtils obj2, boolean works, String... fields) {
         if(works) {
             c.linePrint("Generation Successful.", c.ANSI_GREEN);
+
             obj2.AddAnswer(fields[0], fields[1]);
         } else {
             c.linePrint("This field cannot be randomly generated.", c.ANSI_RED);
@@ -54,7 +55,7 @@ public class Main {
 
     static void gameloop(GeneratorUtils obj2, FileUtils obj, ColorUtils c, Scanner input) throws  java.io.IOException { //TODO user may edit answers in the end
         String ph;
-        obj2.calculateAbilityScores(obj);
+        obj2.calculateAbilityScores();
 
         for(String keypart : obj2.getFieldList()) {
 
@@ -70,7 +71,7 @@ public class Main {
 
             if (checkUnfillable) {
                 switch (keypart) {
-                    case "ProBonus": //ProfBonus - Switched?
+                    case "ProBonus":
                         obj2.AddAnswer(keypart, "+2", true);
                         break;
                     case "Speed":
@@ -126,6 +127,10 @@ public class Main {
                             for (String element : obj2.races) {
                                 c.linePrint(element, c.ANSI_BLUE);
                             }
+                        } else if (ph.toLowerCase().equals("$backgrounds") && keypart.equals("Background")) {
+                            for (String element : obj2.backgrounds.keySet()) {
+                                c.linePrint(element, c.ANSI_BLUE);
+                            }
                         } else if (ph.toLowerCase().equals("$r")) { // Random Generation
                             switch (keypart) {
                                 case "ClassLevel": //Class
@@ -135,7 +140,8 @@ public class Main {
                                     CanGen(c, obj2, true, keypart, obj2.RGENsection(obj2.alignments));
                                     break;
                                 case "Background": //Background
-                                    CanGen(c, obj2, true, keypart, obj2.RGENsection(obj2.backgrounds));
+                                    CanGen(c, obj2, true, keypart, obj2.RGENsection(obj2.backgrounds.keySet().toArray(new String[obj2.backgrounds.keySet().size()])));
+                                    obj2.setAllSkills();
                                     break;
                                 default:
                                     CanGen(c, obj2, false);
@@ -155,6 +161,9 @@ public class Main {
                             obj2.AddAnswer(keypart, ph);
                         } else if (keypart.equals("Race")) {
                             obj2.AddAnswer("ClassLevel", ph + " " + obj2.getTotal_fields().get("ClassLevel"));
+                        } else if (keypart.equals("Background")) {
+                            obj2.AddAnswer(keypart, ph);
+                            obj2.setAllSkills();
                         } else {
                             obj2.AddAnswer(keypart, ph);
                         }
@@ -164,8 +173,6 @@ public class Main {
             }
         }
 
-        extraQuestions(input, c, obj2);
-
         obj.setAllFields(obj2.getTotal_fields());
         c.linePrint("Character Successfully Generated.\nYou may now open the file.", c.ANSI_GREEN);
 
@@ -173,9 +180,11 @@ public class Main {
             c.RSlinePrint("Do you want to randomly generate again with the options specified before? [y/n]: ", c.ANSI_YELLOW);
             ph = input.nextLine();
             if(ph.toLowerCase().equals("y")) {
-                obj2.calculateAbilityScores(obj);
+                obj2.calculateAbilityScores();
+                obj2.setAllSkills();
                 obj2.AddAnswer("Passive", Integer.toString(10 + Integer.parseInt(obj2.getTotal_fields().get("WIS"))), true);
                 obj2.AddAnswer("AC", Integer.toString(10 + Integer.parseInt(obj2.getTotal_fields().get("DEX"))), true);
+                obj2.AddAnswer("Initiative", obj2.getTotal_fields().get("DEXmod"), true);
                 obj.setAllFields(obj2.getTotal_fields());
                 c.linePrint("Character Successfully Generated.\nYou may now open the file.", c.ANSI_GREEN);
             } else {
@@ -183,31 +192,6 @@ public class Main {
                 System.exit(0);
             }
         }
-    }
-
-    static void extraQuestions(Scanner input, ColorUtils c, GeneratorUtils obj2) {
-        String ph;
-        int index = 0;
-
-        while(true) {
-            c.linePrint("[" + (index + 1) + "/2] What ability would you like your character to be proficient in? '$profs' to see a list.", c.ANSI_YELLOW);
-            c.RSlinePrint("\n>> ", c.ANSI_GREEN);
-            ph = input.nextLine();
-            switch (ph) {
-                case "$profs":
-                    for (String element : obj2.profs) {
-                        c.linePrint(element, c.ANSI_BLUE);
-                    }
-                    break;
-                default:
-                    obj2.currentProfs[index] = ph;
-                    index += 1;
-            }
-            if (index == 2) {
-                break;
-            }
-        }
-        obj2.setAllSkills();
     }
 }
 
