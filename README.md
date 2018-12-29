@@ -3,6 +3,8 @@ A java program to generate a D&amp;D character and return a filled out pdf form.
 
 _50% complete_
 
+Project May/May Not be finished due to the large amount of hindrances encountered during the creation that may make the program bulky and long. However, it still works up until the WIP part
+
 ## Features
 
 - Asks for information, automatically fills out the stat sheet
