@@ -1,9 +1,7 @@
 # RPGCharacterStatCreator
 A java program to generate a D&amp;D character and return a filled out pdf form.
 
-_50% complete_
-
-Project May/May Not be finished soon due to dependency problems. Still works though!
+Project may/may not be optimized soon due to dependency problems. Still works though!
 
 ## Features
 
